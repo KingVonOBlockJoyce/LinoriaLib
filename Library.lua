@@ -1203,6 +1203,11 @@ do
             KeyPicker:Update();
         end;
 
+        function KeyPicker:SetMode(Data)
+            ModeButtons[Data]:Select();
+            KeyPicker:Update();
+        end
+
         function KeyPicker:OnClick(Callback)
             KeyPicker.Clicked = Callback
         end
@@ -1324,7 +1329,7 @@ do
 
         Options[Idx] = KeyPicker;
 
-        return self;
+        return KeyPicker;
     end;
 
     BaseAddons.__index = Funcs;
