@@ -1184,12 +1184,7 @@ do
 
                 local Key = KeyPicker.Value;
 
-                if Key == 'MB1' or Key == 'MB2' then
-                    return Key == 'MB1' and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
-                        or Key == 'MB2' and InputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2);
-                else
-                    return InputService:IsKeyDown(Enum.KeyCode[KeyPicker.Value]);
-                end;
+                return InputService:IsKeyDown(Enum.KeyCode[KeyPicker.Value]);
             else
                 return KeyPicker.Toggled;
             end;
@@ -1230,6 +1225,15 @@ do
             Library:SafeCallback(KeyPicker.Clicked, KeyPicker.Toggled)
         end
 
+        function KeyPicker:DoTrueClick()
+            if ParentObj.Type == 'Toggle' and KeyPicker.SyncToggleState then
+                ParentObj:SetValue(not ParentObj.Value)
+            end
+
+            Library:SafeCallback(KeyPicker.Callback, true)
+            Library:SafeCallback(KeyPicker.Clicked, true)
+        end
+
         local Picking = false;
 
         PickOuter.InputBegan:Connect(function(Input)
@@ -1258,28 +1262,26 @@ do
 
                 local Event;
                 Event = InputService.InputBegan:Connect(function(Input)
-                    local Key;
+                    if Input.UserInputType ~= Enum.UserInputType.MouseButton2 and Input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+                        local Key;
 
-                    if Input.UserInputType == Enum.UserInputType.Keyboard then
-                        Key = Input.KeyCode.Name;
-                    elseif Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        Key = 'MB1';
-                    elseif Input.UserInputType == Enum.UserInputType.MouseButton2 then
-                        Key = 'MB2';
-                    end;
+                        if Input.UserInputType == Enum.UserInputType.Keyboard then
+                            Key = Input.KeyCode.Name;
+                        end;
 
-                    Break = true;
-                    Picking = false;
+                        Break = true;
+                        Picking = false;
 
-                    DisplayLabel.Text = Key;
-                    KeyPicker.Value = Key;
+                        DisplayLabel.Text = Key;
+                        KeyPicker.Value = Key;
 
-                    Library:SafeCallback(KeyPicker.ChangedCallback, Input.KeyCode or Input.UserInputType)
-                    Library:SafeCallback(KeyPicker.Changed, Input.KeyCode or Input.UserInputType)
+                        Library:SafeCallback(KeyPicker.ChangedCallback, Input.KeyCode or Input.UserInputType)
+                        Library:SafeCallback(KeyPicker.Changed, Input.KeyCode or Input.UserInputType)
 
-                    Library:AttemptSave();
+                        Library:AttemptSave();
 
-                    Event:Disconnect();
+                        Event:Disconnect();
+                    end
                 end);
             elseif Input.UserInputType == Enum.UserInputType.MouseButton2 and not Library:MouseIsOverOpenedFrame() then
                 ModeSelectOuter.Visible = true;
@@ -1288,19 +1290,17 @@ do
 
         Library:GiveSignal(InputService.InputBegan:Connect(function(Input)
             if (not Picking) then
-                if KeyPicker.Mode == 'Toggle' then
+                if KeyPicker.Mode == 'Toggle' or KeyPicker.Mode == 'Hold' then
                     local Key = KeyPicker.Value;
 
-                    if Key == 'MB1' or Key == 'MB2' then
-                        if Key == 'MB1' and Input.UserInputType == Enum.UserInputType.MouseButton1
-                        or Key == 'MB2' and Input.UserInputType == Enum.UserInputType.MouseButton2 then
-                            KeyPicker.Toggled = not KeyPicker.Toggled
-                            KeyPicker:DoClick()
-                        end;
-                    elseif Input.UserInputType == Enum.UserInputType.Keyboard then
+                    if Input.UserInputType == Enum.UserInputType.Keyboard then
                         if Input.KeyCode.Name == Key then
                             KeyPicker.Toggled = not KeyPicker.Toggled;
-                            KeyPicker:DoClick()
+                            if KeyPicker.Mode == 'Toggle' then
+                                KeyPicker:DoClick()
+                            elseif KeyPicker.Mode == 'Hold' then
+                                KeyPicker:DoTrueClick()
+                            end
                         end;
                     end;
                 end;
@@ -1321,7 +1321,14 @@ do
 
         Library:GiveSignal(InputService.InputEnded:Connect(function(Input)
             if (not Picking) then
-                KeyPicker:Update();
+                pcall(function()
+                    KeyPicker:Update();
+                    
+                    if KeyPicker.Mode == "Hold" and KeyPicker.Value ~= nil and Input.KeyCode == Enum.KeyCode[KeyPicker.Value] then
+                        Library:SafeCallback(KeyPicker.Callback, false)
+                        Library:SafeCallback(KeyPicker.Clicked, false)
+                    end
+                end)
             end;
         end))
 
