@@ -1236,7 +1236,9 @@ do
 
         local Picking = false;
 
-        PickOuter.InputBegan:Connect(function(Input)
+        PickOuter.InputBegan:Connect(function(Input, gameProcessedEvent)
+            if gameProcessedEvent then return end
+
             if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
                 Picking = true;
 
@@ -1261,7 +1263,8 @@ do
                 wait(0.2);
 
                 local Event;
-                Event = InputService.InputBegan:Connect(function(Input)
+                Event = InputService.InputBegan:Connect(function(Input, gameProcessedEvent)
+                    if gameProcessedEvent then return end
                     if Input.UserInputType ~= Enum.UserInputType.MouseButton2 and Input.UserInputType ~= Enum.UserInputType.MouseButton1 then
                         local Key;
 
@@ -1288,7 +1291,9 @@ do
             end;
         end);
 
-        Library:GiveSignal(InputService.InputBegan:Connect(function(Input)
+        Library:GiveSignal(InputService.InputBegan:Connect(function(Input, gameProcessedEvent)
+            if gameProcessedEvent then return end
+
             if (not Picking) then
                 if KeyPicker.Mode == 'Toggle' or KeyPicker.Mode == 'Hold' then
                     local Key = KeyPicker.Value;
