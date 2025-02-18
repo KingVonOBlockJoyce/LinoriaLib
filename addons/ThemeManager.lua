@@ -54,6 +54,8 @@ local ThemeManager = {} do
 	end
 
     game:GetService("RunService").RenderStepped:Connect(function()
+        if not Options.ThemeManager_ThemeList then return end
+        if Options.ThemeManager_ThemeList.Value ~= "Rainbow" then return end
         if Options.AccentColor then
             Options.AccentColor:SetValueRGB(Color3.fromHSV(tick() % 20/20, 0.4, 1))
         end
