@@ -27,6 +27,7 @@ getgenv().Options = Options;
 local Library = {
     Registry = {};
     RegistryMap = {};
+    Visible = false;
 
     HudRegistry = {};
 
@@ -2961,6 +2962,8 @@ function Library:CreateWindow(...)
         Config.AutoShow = Arguments[2] or false;
     end
 
+    Library.Visible = Config.AutoShow
+
     if type(Config.Title) ~= 'string' then Config.Title = 'No title' end
     if type(Config.TabPadding) ~= 'number' then Config.TabPadding = 0 end
     if type(Config.MenuFadeTime) ~= 'number' then Config.MenuFadeTime = 0.2 end
@@ -3533,6 +3536,7 @@ function Library:CreateWindow(...)
         local FadeTime = Config.MenuFadeTime;
         Fading = true;
         Toggled = (not Toggled);
+        Library.Visible = Toggled
         ModalElement.Modal = Toggled;
 
         if Toggled then
