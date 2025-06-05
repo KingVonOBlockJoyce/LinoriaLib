@@ -9,6 +9,8 @@ local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 local Options = Library.Options
 local Toggles = Library.Toggles
 
+-- Yo
+
 Library.ShowToggleFrameInKeybinds = true -- Make toggle keybinds work inside the keybinds UI (aka adds a toggle to the UI). Good for mobile users (Default value = true)
 Library.ShowCustomCursor = true -- Toggles the Linoria cursor globaly (Default value = true)
 Library.NotifySide = "Left" -- Changes the side of the notifications globaly (Left, Right) (Default value = Left)
